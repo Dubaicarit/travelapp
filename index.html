@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Asia 2026">
+<meta name="theme-color" content="#0a0a0f">
+<title>Asia 2026 — Alberto & Micol</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #18181f;
+  --card: #1e1e28;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0ede8;
+  --text2: #9896a0;
+  --text3: #5a5866;
+  --seoul: #c4607a;
+  --seoul-bg: rgba(196,96,122,0.12);
+  --sg: #3dab83;
+  --sg-bg: rgba(61,171,131,0.12);
+  --bali: #d4935a;
+  --bali-bg: rgba(212,147,90,0.12);
+  --urgent: #e05555;
+  --urgent-bg: rgba(224,85,85,0.12);
+  --warn: #d4935a;
+  --warn-bg: rgba(212,147,90,0.12);
+  --ok: #3dab83;
+  --ok-bg: rgba(61,171,131,0.12);
+  --ai: #8b6fd4;
+  --ai-bg: rgba(139,111,212,0.12);
+  --r: 12px;
+  --r2: 8px;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
+body { display: flex; flex-direction: column; }
+
+/* NAV */
+nav {
+  display: flex; gap: 0;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 8px 0;
+  padding-bottom: calc(8px + var(--safe-bottom));
+  order: 2; flex-shrink: 0;
+}
+nav button {
+  flex: 1; background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 4px; color: var(--text3); font-family: 'DM Sans', sans-serif;
+  font-size: 10px; font-weight: 500; transition: color .2s;
+}
+nav button.active { color: var(--text); }
+nav button svg { width: 22px; height: 22px; }
+nav button .nav-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: currentColor; opacity: 0; transition: opacity .2s;
+}
+nav button.active .nav-dot { opacity: 1; }
+
+/* MAIN */
+main { flex: 1; overflow-y: auto; order: 1; -webkit-overflow-scrolling: touch; }
+.page { display: none; min-height: 100%; }
+.page.active { display: block; }
+
+/* HEADER COMUNE */
+.page-header {
+  padding: calc(16px + var(--safe-top)) 20px 20px;
+  background: var(--bg);
+  position: sticky; top: 0; z-index: 10;
+  border-bottom: 1px solid var(--border);
+}
+.page-header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px; color: var(--text); letter-spacing: -.3px;
+}
+.page-header p { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+/* HOME */
+.home-hero {
+  padding: calc(20px + var(--safe-top)) 20px 24px;
+  background: linear-gradient(180deg, #13131c 0%, var(--bg) 100%);
+}
+.hero-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 36px; line-height: 1.1;
+  color: var(--text); margin-bottom: 4px;
+}
+.hero-sub { font-size: 14px; color: var(--text2); }
+.hero-date {
+  display: inline-block; margin-top: 12px;
+  background: var(--card); border: 1px solid var(--border2);
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 12px; color: var(--text2);
+}
+
+.route-strip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 20px 20px; overflow-x: auto;
+  scrollbar-width: none;
+}
+.route-strip::-webkit-scrollbar { display: none; }
+.route-city {
+  flex-shrink: 0; padding: 7px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 500; white-space: nowrap;
+}
+.route-city.mil { background: rgba(255,255,255,0.08); color: var(--text2); }
+.route-city.sel { background: var(--seoul-bg); color: var(--seoul); }
+.route-city.sin { background: var(--sg-bg); color: var(--sg); }
+.route-city.bal { background: var(--bali-bg); color: var(--bali); }
+.route-arrow { color: var(--text3); font-size: 14px; flex-shrink: 0; }
+
+.section-title {
+  padding: 0 20px 10px;
+  font-size: 11px; font-weight: 500;
+  color: var(--text3); text-transform: uppercase; letter-spacing: 1px;
+}
+
+.dest-cards { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.dest-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; transition: border-color .2s;
+}
+.dest-card:active { opacity: .8; }
+.dest-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.dest-card .info { flex: 1; min-width: 0; }
+.dest-card .name { font-size: 15px; font-weight: 500; color: var(--text); }
+.dest-card .meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.dest-card .arrow { color: var(--text3); font-size: 18px; }
+
+.alert-cards { padding: 0 20px 24px; display: flex; flex-direction: column; gap: 8px; }
+.alert-card {
+  border-radius: var(--r2); padding: 12px 14px;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.alert-card.urgent { background: var(--urgent-bg); border: 1px solid rgba(224,85,85,0.25); }
+.alert-card.warn { background: var(--warn-bg); border: 1px solid rgba(212,147,90,0.25); }
+.alert-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.alert-card.urgent .alert-dot { background: var(--urgent); }
+.alert-card.warn .alert-dot { background: var(--warn); }
+.alert-card .al-title { font-size: 12px; font-weight: 500; color: var(--text); }
+.alert-card .al-note { font-size: 11px; color: var(--text2); margin-top: 2px; line-height: 1.5; }
+
+/* TIMELINE */
+.tl-dest-hdr {
+  padding: 14px 20px 10px;
+  font-size: 11px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 8px;
+}
+.tl-dest-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.tl-day { margin-bottom: 4px; }
+.tl-day-label {
+  padding: 8px 20px 6px;
+  font-size: 10px; font-weight: 500;
+  color: var(--text3); text-transform: uppercase; letter-spacing: .8px;
+}
+.tl-item {
+  display: flex; gap: 0; padding: 0 16px 0 20px; margin-bottom: 6px;
+}
+.tl-left { width: 52px; flex-shrink: 0; text-align: right; padding-right: 10px; padding-top: 10px; }
+.tl-time { font-size: 10px; color: var(--text3); white-space: nowrap; }
+.tl-mid { width: 20px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+.tl-dot-wrap { width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 8px; }
+.tl-dot-inner { width: 8px; height: 8px; border-radius: 50%; }
+.tl-line { width: 1px; background: var(--border); flex: 1; min-height: 16px; }
+.tl-card {
+  flex: 1; min-width: 0; margin-left: 8px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 10px 12px; margin-bottom: 0;
+  cursor: pointer; transition: border-color .2s;
+}
+.tl-card:active { opacity: .8; }
+.tl-card.status-urgent { border-left: 3px solid var(--urgent); }
+.tl-card.status-warn { border-left: 3px solid var(--warn); }
+.tl-card.status-ok { border-left: 3px solid var(--ok); }
+.tl-card.status-done { opacity: .5; }
+.tl-card .top-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.tl-card .evt-name { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; }
+.tl-card .evt-dur { font-size: 10px; color: var(--text3); white-space: nowrap; }
+.tl-card .evt-note { font-size: 11px; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+.tl-card .badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.badge {
+  font-size: 9px; font-weight: 500; padding: 2px 7px; border-radius: 10px;
+}
+.badge-urgent { background: var(--urgent-bg); color: var(--urgent); }
+.badge-warn { background: var(--warn-bg); color: var(--warn); }
+.badge-ok { background: var(--ok-bg); color: var(--ok); }
+.badge-gray { background: rgba(255,255,255,0.07); color: var(--text2); }
+.badge-beauty { background: rgba(196,96,122,0.15); color: #e0909f; }
+.badge-cultura { background: rgba(100,140,220,0.15); color: #85aae8; }
+.badge-cibo { background: rgba(212,147,90,0.15); color: var(--bali); }
+.badge-relax { background: rgba(61,171,131,0.15); color: var(--sg); }
+.badge-vista { background: rgba(139,111,212,0.15); color: #a88ee0; }
+.check-btn {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  border: 1.5px solid var(--border2); background: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .2s; color: var(--text3);
+}
+.check-btn.done { background: var(--ok); border-color: var(--ok); color: white; }
+
+/* POI */
+.poi-list { padding: 0 20px 24px; display: flex; flex-direction: column; gap: 8px; }
+.poi-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px 16px;
+}
+.poi-card .poi-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.poi-card .poi-emoji { font-size: 22px; width: 36px; text-align: center; }
+.poi-card .poi-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.poi-card .poi-type { font-size: 11px; color: var(--text2); margin-top: 1px; }
+.poi-card .poi-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.poi-card .poi-meta {
+  display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap;
+}
+.poi-meta-item { font-size: 11px; color: var(--text3); }
+.poi-meta-item span { color: var(--text2); }
+.dest-filter {
+  display: flex; gap: 6px; padding: 0 20px 14px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.dest-filter::-webkit-scrollbar { display: none; }
+.filter-btn {
+  flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text2); font-family: 'DM Sans', sans-serif;
+  transition: all .2s;
+}
+.filter-btn.active-seoul { background: var(--seoul-bg); border-color: var(--seoul); color: var(--seoul); }
+.filter-btn.active-sg { background: var(--sg-bg); border-color: var(--sg); color: var(--sg); }
+.filter-btn.active-bali { background: var(--bali-bg); border-color: var(--bali); color: var(--bali); }
+.filter-btn.active-all { background: rgba(255,255,255,0.08); border-color: var(--border2); color: var(--text); }
+
+/* AI */
+.ai-page { display: flex; flex-direction: column; height: 100%; }
+.ai-header {
+  padding: calc(16px + var(--safe-top)) 20px 14px;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ai-header h1 { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text); }
+.ai-header p { font-size: 12px; color: var(--text2); margin-top: 3px; }
+.ai-key-setup {
+  margin: 12px 20px 0;
+  background: var(--ai-bg); border: 1px solid rgba(139,111,212,0.25);
+  border-radius: var(--r2); padding: 12px 14px;
+}
+.ai-key-setup label { font-size: 11px; color: var(--ai); font-weight: 500; display: block; margin-bottom: 6px; }
+.ai-key-row { display: flex; gap: 8px; }
+.ai-key-row input {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 12px; color: var(--text); font-family: 'DM Sans', sans-serif;
+  outline: none;
+}
+.ai-key-row button {
+  background: var(--ai); border: none; border-radius: 8px;
+  padding: 8px 14px; font-size: 12px; font-weight: 500;
+  color: white; cursor: pointer; font-family: 'DM Sans', sans-serif;
+}
+.ai-status { font-size: 11px; color: var(--ok); margin-top: 6px; display: none; }
+.ai-status.visible { display: block; }
+
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.msg { display: flex; gap: 8px; }
+.msg.user { flex-direction: row-reverse; }
+.msg-bubble {
+  max-width: 82%; padding: 10px 14px;
+  border-radius: 16px; font-size: 13px; line-height: 1.6;
+}
+.msg.user .msg-bubble { background: var(--ai); color: white; border-radius: 16px 16px 4px 16px; }
+.msg.ai .msg-bubble { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 16px 16px 16px 4px; }
+.msg-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--card); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0; margin-top: 2px;
+}
+.typing-dot {
+  display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--text2);
+  animation: blink 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+.quick-chips {
+  padding: 0 20px 10px; display: flex; gap: 6px;
+  overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+}
+.quick-chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex-shrink: 0; background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 12px; font-size: 11px;
+  color: var(--text2); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  white-space: nowrap; transition: border-color .2s;
+}
+.chip:active { opacity: .7; }
+
+.chat-input-wrap {
+  padding: 10px 16px;
+  padding-bottom: calc(10px + var(--safe-bottom));
+  background: var(--bg2); border-top: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
+}
+.chat-input {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 10px 16px;
+  font-size: 14px; color: var(--text); font-family: 'DM Sans', sans-serif;
+  outline: none; resize: none; max-height: 100px;
+  line-height: 1.4;
+}
+.send-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--ai); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: opacity .2s;
+}
+.send-btn:disabled { opacity: .4; }
+.send-btn svg { width: 18px; height: 18px; fill: white; }
+
+/* SCROLL */
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }
+
+/* ANIMATIONS */
+.page { animation: fadeIn .25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* MODALS */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.75);
+  z-index: 100; display: none; align-items: flex-end;
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  width: 100%; background: var(--bg2);
+  border-radius: 20px 20px 0 0; padding: 20px;
+  padding-bottom: calc(20px + var(--safe-bottom));
+  max-height: 80vh; overflow-y: auto;
+  animation: slideUp .3s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+.modal-handle {
+  width: 36px; height: 4px; background: var(--border2);
+  border-radius: 2px; margin: 0 auto 16px;
+}
+.modal-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--text); margin-bottom: 8px; }
+.modal-meta { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
+.modal-body { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.modal-close {
+  width: 100%; margin-top: 20px; padding: 13px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r2); color: var(--text2);
+  font-size: 14px; font-family: 'DM Sans', sans-serif; cursor: pointer;
+}
+.modal-ask-btn {
+  width: 100%; margin-top: 10px; padding: 13px;
+  background: var(--ai-bg); border: 1px solid rgba(139,111,212,.3);
+  border-radius: var(--r2); color: var(--ai);
+  font-size: 14px; font-family: 'DM Sans', sans-serif; cursor: pointer;
+  font-weight: 500;
+}
+
+/* PROGRESS */
+.progress-bar-wrap { padding: 0 20px 20px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+.progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--ok); border-radius: 2px; transition: width .5s ease; }
+</style>
+</head>
+<body>
+<main id="main">
+  <!-- HOME PAGE -->
+  <div id="page-home" class="page active">
+    <div class="home-hero">
+      <div class="hero-title">Asia<br>Aprile 2026</div>
+      <div class="hero-sub">Alberto &amp; Micol — 15 giorni</div>
+      <div class="hero-date">15 Aprile → 30 Aprile</div>
+    </div>
+
+    <div class="route-strip">
+      <div class="route-city mil">Milano</div>
+      <div class="route-arrow">›</div>
+      <div class="route-city sel">Seoul 4n</div>
+      <div class="route-arrow">›</div>
+      <div class="route-city sin">Singapore 3n</div>
+      <div class="route-arrow">›</div>
+      <div class="route-city bal">Bali 7n</div>
+      <div class="route-arrow">›</div>
+      <div class="route-city mil">Milano</div>
+    </div>
+
+    <div id="progress-area" class="progress-bar-wrap">
+      <div class="progress-label"><span>Tappe completate</span><span id="prog-txt">0 / 32</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="section-title">Destinazioni</div>
+    <div class="dest-cards">
+      <div class="dest-card" onclick="showPage('page-timeline'); filterTimeline('seoul')">
+        <div class="dest-icon" style="background:var(--seoul-bg)">🇰🇷</div>
+        <div class="info">
+          <div class="name">Seoul</div>
+          <div class="meta">15–18 Apr · 4 notti · Ciliegi in fiore</div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+      <div class="dest-card" onclick="showPage('page-timeline'); filterTimeline('sg')">
+        <div class="dest-icon" style="background:var(--sg-bg)">🇸🇬</div>
+        <div class="info">
+          <div class="name">Singapore</div>
+          <div class="meta">19–21 Apr · 3 notti · Città futuristica</div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+      <div class="dest-card" onclick="showPage('page-timeline'); filterTimeline('bali')">
+        <div class="dest-icon" style="background:var(--bali-bg)">🇮🇩</div>
+        <div class="info">
+          <div class="name">Bali</div>
+          <div class="meta">22–30 Apr · 7 notti · Maldive style</div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+    </div>
+
+    <div class="section-title">Prenotazioni urgenti</div>
+    <div class="alert-cards">
+      <div class="alert-card urgent">
+        <div class="alert-dot"></div>
+        <div>
+          <div class="al-title">Sulwhasoo Spa Gangnam</div>
+          <div class="al-note">Prenotare ora su sulwhasoo.com — slot aprile si riempiono</div>
+        </div>
+      </div>
+      <div class="alert-card urgent">
+        <div class="alert-dot"></div>
+        <div>
+          <div class="al-title">AMORE Seongsu — fondazione AI</div>
+          <div class="al-note">Slot per aprile su amoremall.com — aprono il 15 marzo</div>
+        </div>
+      </div>
+      <div class="alert-card urgent">
+        <div class="alert-dot"></div>
+        <div>
+          <div class="al-title">St. Regis Bali — Lagoon Villa</div>
+          <div class="al-note">Prenotare su marriott.com — camere migliori esauriscono presto</div>
+        </div>
+      </div>
+      <div class="alert-card warn">
+        <div class="alert-dot"></div>
+        <div>
+          <div class="al-title">Hotel Seoul, Singapore, Ubud</div>
+          <div class="al-note">Prenotare entro 2-3 settimane per avere le camere migliori</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE PAGE -->
+  <div id="page-timeline" class="page">
+    <div class="page-header">
+      <h1>Timeline</h1>
+      <p>Tocca una tappa per dettagli · segna come completata</p>
+    </div>
+    <div id="timeline-content"></div>
+  </div>
+
+  <!-- POI PAGE -->
+  <div id="page-poi" class="page">
+    <div class="page-header">
+      <h1>Punti d'interesse</h1>
+      <p>Attrazioni, ristoranti, esperienze</p>
+    </div>
+    <div class="dest-filter">
+      <button class="filter-btn active-all" onclick="filterPoi('all',this)">Tutti</button>
+      <button class="filter-btn" onclick="filterPoi('seoul',this)">Seoul</button>
+      <button class="filter-btn" onclick="filterPoi('sg',this)">Singapore</button>
+      <button class="filter-btn" onclick="filterPoi('bali',this)">Bali</button>
+    </div>
+    <div id="poi-content" class="poi-list"></div>
+  </div>
+
+  <!-- AI PAGE -->
+  <div id="page-ai" class="page">
+    <div class="ai-page">
+      <div class="ai-header">
+        <h1>Assistente AI</h1>
+        <p>Chiedi qualsiasi cosa sul viaggio</p>
+        <div class="ai-key-setup" id="key-setup">
+          <label>Chiave API Anthropic</label>
+          <div class="ai-key-row">
+            <input type="password" id="api-key-input" placeholder="sk-ant-..." />
+            <button onclick="saveKey()">Salva</button>
+          </div>
+          <div class="ai-status" id="key-status">Chiave salvata!</div>
+        </div>
+      </div>
+      <div class="quick-chips">
+        <div class="chip" onclick="sendChip(this)">Mezzi da Incheon al centro</div>
+        <div class="chip" onclick="sendChip(this)">Cose da evitare a Seoul</div>
+        <div class="chip" onclick="sendChip(this)">Come arrivare a Gardens by the Bay</div>
+        <div class="chip" onclick="sendChip(this)">Taxi a Bali — quanto costa</div>
+        <div class="chip" onclick="sendChip(this)">Cosa portare a Ubud</div>
+        <div class="chip" onclick="sendChip(this)">Currency exchange a Singapore</div>
+        <div class="chip" onclick="sendChip(this)">Emergenze — numeri utili</div>
+        <div class="chip" onclick="sendChip(this)">Dress code templi Bali</div>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg ai">
+          <div class="msg-avatar">✦</div>
+          <div class="msg-bubble">Ciao! Sono il tuo assistente di viaggio per <strong>Seoul, Singapore e Bali</strong>.<br><br>Puoi chiedermi qualsiasi cosa: trasporti, ristoranti, cosa visitare, cose da evitare, numeri di emergenza, frasi utili nelle lingue locali — tutto quello che ti serve durante il viaggio.</div>
+        </div>
+      </div>
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Scrivi una domanda…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- BOTTOM NAV -->
+<nav>
+  <button class="active" onclick="showPage('page-home')" id="nav-home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+    <div class="nav-dot"></div>
+  </button>
+  <button onclick="showPage('page-timeline')" id="nav-timeline">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    Timeline
+    <div class="nav-dot"></div>
+  </button>
+  <button onclick="showPage('page-poi')" id="nav-poi">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    Luoghi
+    <div class="nav-dot"></div>
+  </button>
+  <button onclick="showPage('page-ai')" id="nav-ai">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Chiedi AI
+    <div class="nav-dot"></div>
+  </button>
+</nav>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-meta" id="modal-meta"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <button class="modal-ask-btn" id="modal-ask-btn" onclick="askAboutCurrent()">Chiedi all'AI su questa tappa ✦</button>
+    <button class="modal-close" onclick="closeModal()">Chiudi</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+
+</body>
+</html>
