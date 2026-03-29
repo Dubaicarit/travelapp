@@ -119,6 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderTimeline();
   renderPoi();
   updateProgress();
+  // restore theme
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  applyTheme(savedTheme);
   // restore saved provider
   const savedProvider = localStorage.getItem('aiProvider') || 'anthropic';
   aiProvider = savedProvider;
@@ -140,6 +143,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('key-status').textContent = cfg ? cfg.label + ' ✓' : 'Chiave attiva';
   }
 });
+
+// ══════════════════════════════════════
+// THEME
+// ══════════════════════════════════════
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme'));
+  const btn = document.getElementById('btn-' + theme);
+  if (btn) btn.classList.add('active-theme');
+  // update meta theme-color
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) {
+    metaTheme.content = theme === 'dark' ? '#0a0a0f' : theme === 'sepia' ? '#f2e8d9' : '#f5f4f0';
+  }
+}
+
+function setTheme(theme) {
+  localStorage.setItem('theme', theme);
+  applyTheme(theme);
+}
 
 // ══════════════════════════════════════
 // NAVIGATION
