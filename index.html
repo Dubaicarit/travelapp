@@ -472,6 +472,64 @@ main { flex: 1; overflow-y: auto; order: 1; -webkit-overflow-scrolling: touch; }
 .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 6px; }
 .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--ok); border-radius: 2px; transition: width .5s ease; }
+
+/* UTILITIES */
+.utils-section { padding: 0 20px 20px; }
+.utils-title { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+
+/* COUNTDOWN */
+.countdown-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; text-align: center; }
+.cd-number { font-family: 'DM Serif Display', serif; font-size: 56px; color: var(--text); line-height: 1; }
+.cd-label { font-size: 13px; color: var(--text2); margin-top: 6px; }
+.cd-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* CLOCKS */
+.clocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.clock-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r2); padding: 12px 14px; }
+.clock-city { font-size: 11px; font-weight: 500; color: var(--text2); margin-bottom: 4px; }
+.clock-time { font-size: 24px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+.clock-date { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* WEATHER */
+.weather-grid { display: flex; flex-direction: column; gap: 8px; }
+.weather-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r2); padding: 12px 14px; }
+.wx-city { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+.wx-temp { font-size: 20px; font-weight: 500; color: var(--text); }
+.wx-desc { font-size: 12px; color: var(--text2); margin-top: 3px; }
+.wx-tip { font-size: 11px; color: var(--text3); margin-top: 4px; font-style: italic; }
+
+/* CURRENCY */
+.currency-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
+.curr-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.curr-tab { flex: 1; padding: 7px 4px; border-radius: var(--r2); background: var(--bg3); border: 1px solid var(--border); color: var(--text2); font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .2s; }
+.curr-tab.active { background: var(--ai-bg); border-color: var(--ai); color: var(--ai); }
+.curr-input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.curr-input-row input { flex: 1; background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; padding: 10px 14px; font-size: 18px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; }
+.curr-symbol { font-size: 18px; color: var(--text2); font-weight: 500; }
+.curr-result { font-size: 28px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+.curr-rate { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.curr-tip { font-size: 11px; color: var(--ok); }
+
+/* TIP CALCULATOR */
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
+.tip-info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.tip-info { }
+.tip-city { font-size: 11px; font-weight: 500; margin-bottom: 4px; }
+.tip-rule { font-size: 10px; color: var(--text2); line-height: 1.6; }
+.tip-results { font-size: 13px; color: var(--text2); line-height: 1.8; margin-top: 8px; }
+
+/* EMERGENCY */
+.emerg-list { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
+.emerg-dest { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.emerg-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 0.5px solid var(--border); }
+.emerg-row:last-child { border-bottom: none; }
+.emerg-row span { font-size: 12px; color: var(--text2); }
+.emerg-row a { font-size: 13px; font-weight: 500; color: var(--ai); text-decoration: none; }
+
+/* NOTES */
+.notes-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
+.notes-card textarea { width: 100%; min-height: 160px; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r2); padding: 12px; font-size: 13px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; resize: none; line-height: 1.6; }
+.notes-saved { font-size: 11px; color: var(--ok); margin-top: 6px; min-height: 16px; }
 </style>
 </head>
 <body>
@@ -591,8 +649,167 @@ main { flex: 1; overflow-y: auto; order: 1; -webkit-overflow-scrolling: touch; }
     <div id="poi-content" class="poi-list"></div>
   </div>
 
-  <!-- AI PAGE -->
-  <div id="page-ai" class="page">
+  <!-- UTILITIES PAGE -->
+  <div id="page-utils" class="page">
+    <div class="page-header">
+      <h1>Utilità</h1>
+      <p>Valute · Meteo · Orologi · Emergenze · Note</p>
+    </div>
+
+    <!-- COUNTDOWN -->
+    <div class="utils-section">
+      <div class="utils-title">Countdown partenza</div>
+      <div class="countdown-card">
+        <div class="cd-number" id="cd-days">—</div>
+        <div class="cd-label">giorni al 15 Aprile 2026</div>
+        <div class="cd-sub" id="cd-sub"></div>
+      </div>
+    </div>
+
+    <!-- OROLOGI -->
+    <div class="utils-section">
+      <div class="utils-title">Orario locale</div>
+      <div class="clocks-grid">
+        <div class="clock-card">
+          <div class="clock-city">Milano</div>
+          <div class="clock-time" id="clk-milan">--:--</div>
+          <div class="clock-date" id="clk-milan-d"></div>
+        </div>
+        <div class="clock-card" style="border-color:var(--seoul)">
+          <div class="clock-city" style="color:var(--seoul)">Seoul</div>
+          <div class="clock-time" id="clk-seoul">--:--</div>
+          <div class="clock-date" id="clk-seoul-d"></div>
+        </div>
+        <div class="clock-card" style="border-color:var(--sg)">
+          <div class="clock-city" style="color:var(--sg)">Singapore</div>
+          <div class="clock-time" id="clk-sg">--:--</div>
+          <div class="clock-date" id="clk-sg-d"></div>
+        </div>
+        <div class="clock-card" style="border-color:var(--bali)">
+          <div class="clock-city" style="color:var(--bali)">Bali</div>
+          <div class="clock-time" id="clk-bali">--:--</div>
+          <div class="clock-date" id="clk-bali-d"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- METEO -->
+    <div class="utils-section">
+      <div class="utils-title">Meteo ad Aprile</div>
+      <div class="weather-grid">
+        <div class="weather-card">
+          <div class="wx-city" style="color:var(--seoul)">Seoul</div>
+          <div class="wx-temp">14–20°C</div>
+          <div class="wx-desc">Soleggiato · Ciliegi in fiore · Fresco la sera</div>
+          <div class="wx-tip">Porta una giacca leggera per la sera</div>
+        </div>
+        <div class="weather-card">
+          <div class="wx-city" style="color:var(--sg)">Singapore</div>
+          <div class="wx-temp">28–33°C</div>
+          <div class="wx-desc">Umido · Piogge brevi · Sempre caldo</div>
+          <div class="wx-tip">Abbigliamento leggero, ombrello tascabile</div>
+        </div>
+        <div class="weather-card">
+          <div class="wx-city" style="color:var(--bali)">Bali</div>
+          <div class="wx-temp">26–32°C</div>
+          <div class="wx-desc">Fine stagione umida · Verde lussureggiante</div>
+          <div class="wx-tip">Crema solare alta protezione obbligatoria</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONVERTITORE VALUTE -->
+    <div class="utils-section">
+      <div class="utils-title">Convertitore valute</div>
+      <div class="currency-card">
+        <div class="curr-tabs">
+          <button class="curr-tab active" onclick="setCurrency('KRW',this)">Won 🇰🇷</button>
+          <button class="curr-tab" onclick="setCurrency('SGD',this)">SGD 🇸🇬</button>
+          <button class="curr-tab" onclick="setCurrency('IDR',this)">Rupia 🇮🇩</button>
+        </div>
+        <div class="curr-input-row">
+          <input type="number" id="curr-input" placeholder="0" oninput="convertCurrency()" />
+          <span class="curr-symbol" id="curr-symbol">₩</span>
+        </div>
+        <div class="curr-result">
+          <span id="curr-eur">— €</span>
+        </div>
+        <div class="curr-rate" id="curr-rate">1 EUR ≈ 1.450 KRW (stima)</div>
+        <div class="curr-tip" id="curr-tip">Preleva in banca locale, evita cambi in aeroporto</div>
+      </div>
+    </div>
+
+    <!-- CALCOLATORE MANCE -->
+    <div class="utils-section">
+      <div class="utils-title">Calcolatore mance e tasse</div>
+      <div class="tip-card">
+        <div class="tip-info-grid">
+          <div class="tip-info">
+            <div class="tip-city" style="color:var(--seoul)">Seoul</div>
+            <div class="tip-rule">Mance: non usuale</div>
+            <div class="tip-rule">IVA: 10% inclusa</div>
+            <div class="tip-rule">Tassa turista: no</div>
+          </div>
+          <div class="tip-info">
+            <div class="tip-city" style="color:var(--sg)">Singapore</div>
+            <div class="tip-rule">Mance: 10% optional</div>
+            <div class="tip-rule">GST: 9% inclusa</div>
+            <div class="tip-rule">Service charge: 10%</div>
+          </div>
+          <div class="tip-info">
+            <div class="tip-city" style="color:var(--bali)">Bali</div>
+            <div class="tip-rule">Mance: gradite</div>
+            <div class="tip-rule">€1-2 massaggiatore</div>
+            <div class="tip-rule">10% ristorante</div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="curr-input-row">
+            <input type="number" id="tip-input" placeholder="Conto in Euro" oninput="calcTip()" />
+            <span class="curr-symbol">€</span>
+          </div>
+          <div class="tip-results" id="tip-results"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMERGENZE -->
+    <div class="utils-section">
+      <div class="utils-title">Emergenze e consolato</div>
+      <div class="emerg-list">
+        <div class="emerg-dest" style="color:var(--seoul)">Seoul 🇰🇷</div>
+        <div class="emerg-row"><span>Polizia</span><a href="tel:112">112</a></div>
+        <div class="emerg-row"><span>Ambulanza</span><a href="tel:119">119</a></div>
+        <div class="emerg-row"><span>Vigili del fuoco</span><a href="tel:119">119</a></div>
+        <div class="emerg-row"><span>Consolato italiano</span><a href="tel:+82-2-796-0491">+82-2-796-0491</a></div>
+        <div class="emerg-row"><span>Turisti stranieri</span><a href="tel:1330">1330</a></div>
+
+        <div class="emerg-dest" style="color:var(--sg); margin-top:14px">Singapore 🇸🇬</div>
+        <div class="emerg-row"><span>Polizia</span><a href="tel:999">999</a></div>
+        <div class="emerg-row"><span>Ambulanza</span><a href="tel:995">995</a></div>
+        <div class="emerg-row"><span>Consolato italiano</span><a href="tel:+65-6250-6022">+65-6250-6022</a></div>
+
+        <div class="emerg-dest" style="color:var(--bali); margin-top:14px">Bali 🇮🇩</div>
+        <div class="emerg-row"><span>Polizia</span><a href="tel:110">110</a></div>
+        <div class="emerg-row"><span>Ambulanza</span><a href="tel:118">118</a></div>
+        <div class="emerg-row"><span>Ospedale BIMC</span><a href="tel:+62-361-3000-911">+62-361-3000-911</a></div>
+        <div class="emerg-row"><span>Consolato italiano</span><a href="tel:+62-21-5797-9140">+62-21-5797-9140</a></div>
+      </div>
+    </div>
+
+    <!-- NOTE DIARIO -->
+    <div class="utils-section">
+      <div class="utils-title">Note e diario di viaggio</div>
+      <div class="notes-card">
+        <textarea id="notes-area" placeholder="Scrivi qui le tue note, ricordi, cose da non dimenticare..." oninput="saveNotes()"></textarea>
+        <div class="notes-saved" id="notes-saved"></div>
+      </div>
+    </div>
+
+    <div style="height:20px"></div>
+  </div>
+
+
     <div class="ai-page">
       <div class="ai-header">
         <h1>Assistente AI</h1>
@@ -661,9 +878,14 @@ main { flex: 1; overflow-y: auto; order: 1; -webkit-overflow-scrolling: touch; }
     Luoghi
     <div class="nav-dot"></div>
   </button>
+  <button onclick="showPage('page-utils')" id="nav-utils">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+    Utilità
+    <div class="nav-dot"></div>
+  </button>
   <button onclick="showPage('page-ai')" id="nav-ai">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    Chiedi AI
+    AI
     <div class="nav-dot"></div>
   </button>
 </nav>
