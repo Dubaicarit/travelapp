@@ -421,44 +421,51 @@ Emergenze: Seoul 112/119, Singapore 999/995, Bali +62-361-224500 (BIMC), 110 pol
 Rispondi in 3-5 frasi. Sii diretto e utile.`;
 
 async function callAnthropic(msg) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch('/api/chat', {
     method: 'POST',
-    headers: { 'Content-Type':'application/json', 'x-api-key':apiKey, 'anthropic-version':'2023-06-01' },
-    body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:600, system:SYSTEM_PROMPT, messages:chatHistory })
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.content[0].text;
-}
-
-async function callOpenAI(msg) {
-  const messages = [{ role:'system', content:SYSTEM_PROMPT }, ...chatHistory];
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + apiKey },
-    body: JSON.stringify({ model:'gpt-4o-mini', max_tokens:600, messages })
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.choices[0].message.content;
-}
-
-async function callGemini(msg) {
-  const contents = chatHistory.map(m => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }]
-  }));
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type':'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      system_instruction: { parts:[{ text: SYSTEM_PROMPT }] },
-      contents
+      provider: 'anthropic',
+      apiKey,
+      system: SYSTEM_PROMPT,
+      messages: chatHistory
     })
   });
   const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.candidates[0].content.parts[0].text;
+  if (data.error) throw new Error(data.error);
+  return data.reply;
+}
+
+async function callOpenAI(msg) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      provider: 'openai',
+      apiKey,
+      system: SYSTEM_PROMPT,
+      messages: chatHistory
+    })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.reply;
+}
+
+async function callGemini(msg) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      provider: 'gemini',
+      apiKey,
+      system: SYSTEM_PROMPT,
+      messages: chatHistory
+    })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.reply;
 }
 
 async function sendMessage() {
