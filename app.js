@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderTimeline();
   renderPoi();
   updateProgress();
+  initUtils();
   // restore theme
   const savedTheme = localStorage.getItem('theme') || 'dark';
   applyTheme(savedTheme);
@@ -171,7 +172,7 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const map = { 'page-home':'nav-home','page-timeline':'nav-timeline','page-poi':'nav-poi','page-ai':'nav-ai' };
+  const map = { 'page-home':'nav-home','page-timeline':'nav-timeline','page-poi':'nav-poi','page-utils':'nav-utils','page-ai':'nav-ai' };
   document.getElementById(map[id])?.classList.add('active');
 }
 
@@ -524,4 +525,153 @@ function addTyping() {
 
 function removeTyping(id) {
   document.getElementById(id)?.remove();
+}
+
+// ══════════════════════════════════════
+// UTILITIES — COUNTDOWN
+// ══════════════════════════════════════
+function updateCountdown() {
+  const now = new Date();
+  const depart = new Date('2026-04-15T00:00:00');
+  const diff = depart - now;
+  const el = document.getElementById('cd-days');
+  const sub = document.getElementById('cd-sub');
+  if (!el) return;
+  if (diff <= 0) {
+    el.textContent = '✈️';
+    sub.textContent = 'Siete in viaggio!';
+    return;
+  }
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+  el.textContent = days;
+  sub.textContent = `e ${hours} ore alla partenza`;
+}
+
+// ══════════════════════════════════════
+// UTILITIES — OROLOGI
+// ══════════════════════════════════════
+function updateClocks() {
+  const zones = [
+    { id:'milan',  tz:'Europe/Rome',      dId:'clk-milan-d',  tId:'clk-milan'  },
+    { id:'seoul',  tz:'Asia/Seoul',       dId:'clk-seoul-d',  tId:'clk-seoul'  },
+    { id:'sg',     tz:'Asia/Singapore',   dId:'clk-sg-d',     tId:'clk-sg'     },
+    { id:'bali',   tz:'Asia/Makassar',    dId:'clk-bali-d',   tId:'clk-bali'   },
+  ];
+  zones.forEach(z => {
+    const now = new Date();
+    const t = now.toLocaleTimeString('it-IT', { timeZone: z.tz, hour:'2-digit', minute:'2-digit' });
+    const d = now.toLocaleDateString('it-IT', { timeZone: z.tz, weekday:'short', day:'numeric', month:'short' });
+    const te = document.getElementById(z.tId);
+    const de = document.getElementById(z.dId);
+    if (te) te.textContent = t;
+    if (de) de.textContent = d;
+  });
+}
+
+// ══════════════════════════════════════
+// UTILITIES — VALUTE
+// ══════════════════════════════════════
+const CURRENCIES = {
+  KRW: { rate: 1450, symbol: '₩', tip: 'Preleva agli ATM locali (Woori, KB Bank). Evita cambio in aeroporto.' },
+  SGD: { rate: 1.45, symbol: 'S$', tip: 'ATM o money changer in città. Tasso migliore di banca.' },
+  IDR: { rate: 17200, symbol: 'Rp', tip: 'Preleva in banca locale. Evita cambio in hotel — peggiore del 15%.' }
+};
+let currentCurrency = 'KRW';
+
+function setCurrency(curr, btn) {
+  currentCurrency = curr;
+  document.querySelectorAll('.curr-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const cfg = CURRENCIES[curr];
+  document.getElementById('curr-symbol').textContent = cfg.symbol;
+  document.getElementById('curr-rate').textContent = `1 EUR ≈ ${cfg.rate.toLocaleString('it-IT')} ${curr} (stima)`;
+  document.getElementById('curr-tip').textContent = cfg.tip;
+  document.getElementById('curr-input').value = '';
+  document.getElementById('curr-eur').textContent = '— €';
+}
+
+function convertCurrency() {
+  const val = parseFloat(document.getElementById('curr-input').value);
+  const cfg = CURRENCIES[currentCurrency];
+  if (!val || isNaN(val)) { document.getElementById('curr-eur').textContent = '— €'; return; }
+  const eur = (val / cfg.rate).toFixed(2);
+  document.getElementById('curr-eur').textContent = `${parseFloat(eur).toLocaleString('it-IT', {minimumFractionDigits:2})} €`;
+}
+
+// ══════════════════════════════════════
+// UTILITIES — MANCE
+// ══════════════════════════════════════
+function calcTip() {
+  const val = parseFloat(document.getElementById('tip-input').value);
+  const res = document.getElementById('tip-results');
+  if (!val || isNaN(val)) { res.innerHTML = ''; return; }
+  res.innerHTML = `
+    <div style="color:var(--seoul)">Seoul: mance non necessarie · IVA già inclusa</div>
+    <div style="color:var(--sg);margin-top:4px">Singapore: +10% servizio = <strong>${(val*0.1).toFixed(2)}€</strong> · Totale: <strong>${(val*1.1).toFixed(2)}€</strong></div>
+    <div style="color:var(--bali);margin-top:4px">Bali ristorante: +10% = <strong>${(val*0.1).toFixed(2)}€</strong> · Massaggio: 1-2€ fisso</div>
+  `;
+}
+
+// ══════════════════════════════════════
+// UTILITIES — NOTE
+// ══════════════════════════════════════
+function saveNotes() {
+  const notes = document.getElementById('notes-area').value;
+  localStorage.setItem('travelNotes', notes);
+  const saved = document.getElementById('notes-saved');
+  saved.textContent = 'Salvato ✓';
+  setTimeout(() => { saved.textContent = ''; }, 2000);
+}
+
+function loadNotes() {
+  const notes = localStorage.getItem('travelNotes') || '';
+  const el = document.getElementById('notes-area');
+  if (el) el.value = notes;
+}
+
+// ══════════════════════════════════════
+// UTILITIES — NOTIFICHE
+// ══════════════════════════════════════
+function requestNotifications() {
+  if (!('Notification' in window)) return;
+  Notification.requestPermission().then(perm => {
+    if (perm === 'granted') scheduleNotifications();
+  });
+}
+
+function scheduleNotifications() {
+  const urgent = [
+    { name: 'Sulwhasoo Spa Gangnam', date: '2026-03-15' },
+    { name: 'AMORE Seongsu robot AI', date: '2026-03-15' },
+    { name: 'St. Regis Bali Lagoon Villa', date: '2026-03-20' },
+  ];
+  urgent.forEach(item => {
+    const d = new Date(item.date);
+    const now = new Date();
+    if (d > now) {
+      const delay = d - now;
+      setTimeout(() => {
+        new Notification('⚠️ Prenota ora!', {
+          body: item.name + ' — non aspettare oltre!',
+          icon: '/icon.png'
+        });
+      }, Math.min(delay, 2147483647));
+    }
+  });
+}
+
+// ══════════════════════════════════════
+// INIT UTILITIES
+// ══════════════════════════════════════
+function initUtils() {
+  updateCountdown();
+  updateClocks();
+  loadNotes();
+  setInterval(updateClocks, 60000);
+  setInterval(updateCountdown, 60000);
+  // richiedi notifiche
+  if ('Notification' in window && Notification.permission === 'default') {
+    setTimeout(requestNotifications, 3000);
+  }
 }
