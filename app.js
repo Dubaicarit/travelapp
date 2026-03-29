@@ -119,10 +119,25 @@ document.addEventListener('DOMContentLoaded', () => {
   renderTimeline();
   renderPoi();
   updateProgress();
-  if (apiKey) {
+  // restore saved provider
+  const savedProvider = localStorage.getItem('aiProvider') || 'anthropic';
+  aiProvider = savedProvider;
+  const provBtn = document.getElementById('prov-' + savedProvider);
+  if (provBtn) {
+    document.querySelectorAll('.prov-btn').forEach(b => b.classList.remove('active'));
+    provBtn.classList.add('active');
+  }
+  const cfg = PROVIDER_CFG[savedProvider];
+  if (cfg) {
+    document.getElementById('prov-hint').textContent = cfg.hint;
+    document.getElementById('api-key-input').placeholder = cfg.placeholder;
+  }
+  const savedKey = localStorage.getItem('apiKey_' + savedProvider);
+  if (savedKey) {
+    apiKey = savedKey;
     document.getElementById('api-key-input').value = '••••••••••••••••';
     document.getElementById('key-status').classList.add('visible');
-    document.getElementById('key-status').textContent = 'Chiave API attiva';
+    document.getElementById('key-status').textContent = cfg ? cfg.label + ' ✓' : 'Chiave attiva';
   }
 });
 
@@ -313,16 +328,46 @@ function showAiWithContext(msg) {
 }
 
 // ══════════════════════════════════════
-// AI CHAT
+// AI CHAT — MULTI PROVIDER
 // ══════════════════════════════════════
+let aiProvider = localStorage.getItem('aiProvider') || 'anthropic';
+
+const PROVIDER_CFG = {
+  anthropic: { hint:'console.anthropic.com → API Keys', placeholder:'sk-ant-api03-...', label:'Claude attivo' },
+  openai:    { hint:'platform.openai.com → API Keys',   placeholder:'sk-proj-...',       label:'ChatGPT attivo' },
+  gemini:    { hint:'aistudio.google.com → Get API Key (gratis!)', placeholder:'AIzaSy...', label:'Gemini attivo (gratis)' }
+};
+
+function selectProvider(p, btn) {
+  aiProvider = p;
+  localStorage.setItem('aiProvider', p);
+  document.querySelectorAll('.prov-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const cfg = PROVIDER_CFG[p];
+  document.getElementById('prov-hint').textContent = cfg.hint;
+  document.getElementById('api-key-input').placeholder = cfg.placeholder;
+  const saved = localStorage.getItem('apiKey_' + p);
+  if (saved) {
+    document.getElementById('api-key-input').value = '••••••••••••••••';
+    document.getElementById('key-status').classList.add('visible');
+    document.getElementById('key-status').textContent = cfg.label + ' ✓';
+    apiKey = saved;
+  } else {
+    document.getElementById('api-key-input').value = '';
+    document.getElementById('key-status').classList.remove('visible');
+    apiKey = '';
+  }
+}
+
 function saveKey() {
   const val = document.getElementById('api-key-input').value.trim();
   if (!val || val.startsWith('•')) return;
   apiKey = val;
+  localStorage.setItem('apiKey_' + aiProvider, apiKey);
   localStorage.setItem('apiKey', apiKey);
   document.getElementById('api-key-input').value = '••••••••••••••••';
   document.getElementById('key-status').classList.add('visible');
-  document.getElementById('key-status').textContent = 'Chiave salvata e attiva!';
+  document.getElementById('key-status').textContent = PROVIDER_CFG[aiProvider].label + ' ✓';
 }
 
 function handleKey(e) {
@@ -342,12 +387,63 @@ function sendChip(el) {
   sendMessage();
 }
 
+const SYSTEM_PROMPT = `Sei un esperto assistente di viaggio per un viaggio in Asia (Seoul, Singapore, Bali) ad Aprile 2026. Il viaggio è di Alberto e sua figlia Micol, 15 giorni dal 15 al 30 aprile.
+Rispondi sempre in italiano, in modo conciso e pratico.
+Fornisci informazioni specifiche su: trasporti locali, prezzi, ristoranti, cose da evitare, sicurezza, frasi utili nelle lingue locali, numeri di emergenza, meteo, vestiti.
+Seoul: Gyeongbokgung, N Seoul Tower, Myeongdong K-beauty, Sulwhasoo Spa, Amore Seongsu, Han River, Aquafield, Hongdae, Gangnam, Seongsu.
+Singapore: Gardens by the Bay, Marina Bay Sands, hawker centres, Chinatown, Little India, Sentosa.
+Bali: Ubud (Tegalalang, Monkey Forest), Nusa Dua (St. Regis Lagoon Villa), Uluwatu, Tanah Lot, Potato Head.
+Hotel: Hotel Naru Seoul MGallery, Hotel G Singapore, Maya Ubud Resort, St. Regis Bali.
+Emergenze: Seoul 112/119, Singapore 999/995, Bali +62-361-224500 (BIMC), 110 polizia.
+Rispondi in 3-5 frasi. Sii diretto e utile.`;
+
+async function callAnthropic(msg) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'x-api-key':apiKey, 'anthropic-version':'2023-06-01' },
+    body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:600, system:SYSTEM_PROMPT, messages:chatHistory })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content[0].text;
+}
+
+async function callOpenAI(msg) {
+  const messages = [{ role:'system', content:SYSTEM_PROMPT }, ...chatHistory];
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + apiKey },
+    body: JSON.stringify({ model:'gpt-4o-mini', max_tokens:600, messages })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.choices[0].message.content;
+}
+
+async function callGemini(msg) {
+  const contents = chatHistory.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }]
+  }));
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts:[{ text: SYSTEM_PROMPT }] },
+      contents
+    })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.candidates[0].content.parts[0].text;
+}
+
 async function sendMessage() {
   const input = document.getElementById('chat-input');
   const msg = input.value.trim();
   if (!msg) return;
   if (!apiKey) {
-    addMsg('ai', 'Per usare l\'assistente AI inserisci prima la tua chiave API Anthropic nel campo in alto.');
+    addMsg('ai', 'Inserisci prima la tua chiave API nel campo in alto, poi scegli il provider (Claude, ChatGPT o Gemini) e tocca Salva.');
     return;
   }
   input.value = '';
@@ -356,41 +452,17 @@ async function sendMessage() {
   chatHistory.push({ role:'user', content: msg });
   const typingId = addTyping();
   document.getElementById('send-btn').disabled = true;
-
-  const systemPrompt = `Sei un esperto assistente di viaggio per un viaggio in Asia (Seoul, Singapore, Bali) ad Aprile 2026. Il viaggio è di Alberto e sua figlia Micol, 15 giorni dal 15 al 30 aprile. 
-Rispondi sempre in italiano, in modo conciso e pratico. 
-Fornisci informazioni specifiche su: trasporti locali, prezzi aggiornati, ristoranti, cose da evitare, consigli di sicurezza, frasi utili nelle lingue locali, numeri di emergenza, meteo, vestiti adatti.
-Seoul: Gyeongbokgung, N Seoul Tower, Myeongdong K-beauty, Sulwhasoo Spa, Amore Seongsu, Han River, Aquafield Jjimjilbang, Hongdae, Gangnam, Seongsu.
-Singapore: Gardens by the Bay, Marina Bay Sands, hawker centres, Chinatown, Little India, Sentosa.  
-Bali: Ubud (risaie Tegalalang, Monkey Forest), Nusa Dua (St. Regis), Uluwatu, Tanah Lot, Potato Head, massaggi, cooking class.
-Hotel: Hotel Naru Seoul MGallery, Hotel G Singapore, Maya Ubud Resort, St. Regis Bali Lagoon Villa.
-Numeri emergenza: Seoul 112 (polizia) 119 (ambulanza), Singapore 999 (polizia) 995 (ambulanza), Bali +62-361-224500 (ospedale BIMC), 110 (polizia).
-Rispondi in 3-5 frasi massimo se possibile. Sii diretto e utile.`;
-
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 600,
-        system: systemPrompt,
-        messages: chatHistory
-      })
-    });
-    const data = await res.json();
+    let reply = '';
+    if (aiProvider === 'anthropic') reply = await callAnthropic(msg);
+    else if (aiProvider === 'openai')    reply = await callOpenAI(msg);
+    else if (aiProvider === 'gemini')    reply = await callGemini(msg);
     removeTyping(typingId);
-    if (data.error) {
-      addMsg('ai', `Errore API: ${data.error.message}. Controlla che la chiave API sia corretta.`);
-      chatHistory.pop();
-    } else {
-      const reply = data.content[0].text;
-      addMsg('ai', reply);
-      chatHistory.push({ role:'assistant', content: reply });
-    }
+    addMsg('ai', reply);
+    chatHistory.push({ role:'assistant', content: reply });
   } catch (err) {
     removeTyping(typingId);
-    addMsg('ai', 'Errore di connessione. Controlla la connessione internet e riprova.');
+    addMsg('ai', `Errore: ${err.message}. Controlla che la chiave sia corretta per il provider selezionato.`);
     chatHistory.pop();
   }
   document.getElementById('send-btn').disabled = false;
