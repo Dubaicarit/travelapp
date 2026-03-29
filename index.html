@@ -279,6 +279,18 @@ main { flex: 1; overflow-y: auto; order: 1; -webkit-overflow-scrolling: touch; }
   padding: 8px 14px; font-size: 12px; font-weight: 500;
   color: white; cursor: pointer; font-family: 'DM Sans', sans-serif;
 }
+.provider-tabs { display:flex; gap:6px; margin-bottom:10px; }
+.prov-btn {
+  flex:1; padding:8px 6px; border-radius:var(--r2);
+  background:var(--bg3); border:1px solid var(--border);
+  color:var(--text2); font-family:'DM Sans',sans-serif;
+  font-size:12px; font-weight:500; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  transition:all .2s;
+}
+.prov-btn.active { background:var(--ai-bg); border-color:rgba(139,111,212,.4); color:var(--ai); }
+.prov-icon { font-size:14px; }
+.prov-hint { font-size:10px; color:var(--text3); margin-bottom:8px; }
 .ai-status { font-size: 11px; color: var(--ok); margin-top: 6px; display: none; }
 .ai-status.visible { display: block; }
 
@@ -514,9 +526,21 @@ main { flex: 1; overflow-y: auto; order: 1; -webkit-overflow-scrolling: touch; }
         <h1>Assistente AI</h1>
         <p>Chiedi qualsiasi cosa sul viaggio</p>
         <div class="ai-key-setup" id="key-setup">
-          <label>Chiave API Anthropic</label>
+          <label>Scegli il provider AI</label>
+          <div class="provider-tabs">
+            <button class="prov-btn active" onclick="selectProvider('anthropic',this)" id="prov-anthropic">
+              <span class="prov-icon">✦</span> Claude
+            </button>
+            <button class="prov-btn" onclick="selectProvider('openai',this)" id="prov-openai">
+              <span class="prov-icon">⬡</span> ChatGPT
+            </button>
+            <button class="prov-btn" onclick="selectProvider('gemini',this)" id="prov-gemini">
+              <span class="prov-icon">◈</span> Gemini
+            </button>
+          </div>
+          <div class="prov-hint" id="prov-hint">console.anthropic.com → API Keys</div>
           <div class="ai-key-row">
-            <input type="password" id="api-key-input" placeholder="sk-ant-..." />
+            <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." />
             <button onclick="saveKey()">Salva</button>
           </div>
           <div class="ai-status" id="key-status">Chiave salvata!</div>
