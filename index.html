@@ -43,9 +43,76 @@
   --safe-top: env(safe-area-inset-top);
   --safe-bottom: env(safe-area-inset-bottom);
 }
+/* LIGHT THEME */
+[data-theme="light"] {
+  --bg: #f5f4f0;
+  --bg2: #eeece8;
+  --bg3: #e8e6e1;
+  --card: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #1a1a1a;
+  --text2: #555555;
+  --text3: #999999;
+  --seoul: #a0344e;
+  --seoul-bg: rgba(160,52,78,0.10);
+  --sg: #0e7a58;
+  --sg-bg: rgba(14,122,88,0.10);
+  --bali: #b06830;
+  --bali-bg: rgba(176,104,48,0.10);
+  --urgent: #c0392b;
+  --urgent-bg: rgba(192,57,43,0.10);
+  --warn: #b06830;
+  --warn-bg: rgba(176,104,48,0.10);
+  --ok: #0e7a58;
+  --ok-bg: rgba(14,122,88,0.10);
+  --ai: #6244b8;
+  --ai-bg: rgba(98,68,184,0.10);
+}
+/* WARM SEPIA THEME */
+[data-theme="sepia"] {
+  --bg: #f2e8d9;
+  --bg2: #ebe0cc;
+  --bg3: #e3d5bc;
+  --card: #faf4ea;
+  --border: rgba(120,80,20,0.12);
+  --border2: rgba(120,80,20,0.20);
+  --text: #2c1f0e;
+  --text2: #6b4c2a;
+  --text3: #a07850;
+  --seoul: #c4607a;
+  --seoul-bg: rgba(196,96,122,0.12);
+  --sg: #2e8b57;
+  --sg-bg: rgba(46,139,87,0.12);
+  --bali: #c4783a;
+  --bali-bg: rgba(196,120,58,0.12);
+  --urgent: #d04030;
+  --urgent-bg: rgba(208,64,48,0.12);
+  --warn: #c4783a;
+  --warn-bg: rgba(196,120,58,0.12);
+  --ok: #2e8b57;
+  --ok-bg: rgba(46,139,87,0.12);
+  --ai: #7a5ca8;
+  --ai-bg: rgba(122,92,168,0.12);
+}
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
-body { display: flex; flex-direction: column; }
+body { display: flex; flex-direction: column; transition: background .3s, color .3s; }
+
+/* THEME TOGGLE */
+.theme-toggle {
+  position: absolute; top: 0; right: 20px;
+  top: calc(16px + var(--safe-top));
+  display: flex; gap: 4px; align-items: center;
+}
+.theme-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--border2); background: var(--card);
+  cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+}
+.theme-btn.active-theme { background: var(--ai-bg); border-color: var(--ai); }
 
 /* NAV */
 nav {
@@ -411,7 +478,12 @@ main { flex: 1; overflow-y: auto; order: 1; -webkit-overflow-scrolling: touch; }
 <main id="main">
   <!-- HOME PAGE -->
   <div id="page-home" class="page active">
-    <div class="home-hero">
+    <div class="home-hero" style="position:relative">
+      <div class="theme-toggle">
+        <button class="theme-btn active-theme" onclick="setTheme('dark')" id="btn-dark" title="Scuro">🌙</button>
+        <button class="theme-btn" onclick="setTheme('light')" id="btn-light" title="Chiaro">☀️</button>
+        <button class="theme-btn" onclick="setTheme('sepia')" id="btn-sepia" title="Sepia">🌅</button>
+      </div>
       <div class="hero-title">Asia<br>Aprile 2026</div>
       <div class="hero-sub">Alberto &amp; Micol — 15 giorni</div>
       <div class="hero-date">15 Aprile → 30 Aprile</div>
